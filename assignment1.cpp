@@ -1,5 +1,8 @@
 # include <iostream>
 # include <fstream>
+# include <cmath>
+#include <cstdlib>
+#include <random>
 using namespace::std;
 
 bool isValidDNA(string dna){
@@ -10,6 +13,47 @@ bool isValidDNA(string dna){
   }
 }
   return true;
+}
+
+string populateSequence(string sequence, int aRemain, int tRemain, int cRemain, int gRemain){
+  int rand();
+  for(int i = 0; i < sequence.length(); i++ ){
+    int choice = rand()%4;
+    if(choice == 0 && aRemain > 0){
+      sequence[i] = 'A';
+    }else if(choice == 1 && tRemain > 0){
+      sequence[i] = 'T';
+    }else if(choice == 2 && gRemain > 0){
+      sequence[i] = 'G';
+    }else if(choice = 3 && cRemain > 0){
+      sequence[i] = 'C';
+    }
+  }
+  return sequence;
+}
+
+void createString(double variance, double mean, string output, double aProb, double tProb, double cProb, double gProb){
+  int rand();
+  double aCount = aProb * 1000;
+  double tCount = tProb * 1000;
+  double cCount = cProb * 1000;
+  double gCount = gProb * 1000;
+  ofstream outputFile;
+  outputFile.open("output.txt", ios::app);
+  for(int i = 0; i < 1000; i++){
+    string newSequence = "";
+    int a = rand();
+    int b = rand();
+    double c = sqrt(-2*log(a)*(cos(2*3.14*b)));
+    int d = sqrt(variance) * c * mean;
+    int value = rand()%d;
+    for(int j = 0; j < value; j++){
+      newSequence.append("*");
+    }
+    newSequence = populateSequence(newSequence, aCount, tCount, cCount, gCount);
+
+   outputFile << newSequence << "\r\n";
+  }
 }
 
 int countOccurances(string dna, string nucleo){
@@ -47,11 +91,11 @@ double calculateVariance(string filename, double mean, double lines){
   return variance/(lines-1);
 }
 
-double nucleotideProbability(int dnaSum, int nucleotideCount){
+double nucleotideProbability(double dnaSum, double nucleotideCount){
   return nucleotideCount/dnaSum;
 }
 
-double bigramProbability(int dnaSum, int bigramCount){
+double bigramProbability(double dnaSum, double bigramCount){
   return bigramCount/(dnaSum/2);
 }
 
@@ -128,13 +172,28 @@ int main(int argc, char** argv){
   GC = bigramProbability(dnaSum, GC);
   GG = bigramProbability(dnaSum, GG);
 
-
+  ofstream outputFile;
+  outputFile.open("output.txt");
   averageLength = dnaSum/stringsCounted;
   variance = calculateVariance("test.txt", averageLength, stringsCounted);
-//  standardDeviation = pow(variance, 0.5);
-  cout << "sum: " << dnaSum << endl;
-  cout << "mean: " << averageLength << endl;
-  cout << "variance: " << variance << endl;
-//  cout << "standard deviation: " << standardDeviation;
+  standardDeviation = pow(variance, 0.5);
+  outputFile << "Letter Probability:\r\n";
+  outputFile << "A: " << A << "\r\n";
+  outputFile << "AA: " << AA << " AT: " << AT << " AC: " << AC << " AG: " << AG << "\r\n";
+  outputFile << "" << "\r\n";
+  outputFile << "C: " << C << "\r\n";
+  outputFile << "CA: " << CA << " CT: " << CT << " CC: " << CC << " CG: " << CG << "\r\n";
+  outputFile << "" << "\r\n";
+  outputFile << "T: " << T << "\r\n";
+  outputFile << "TA: " << TA << " TT: " << TT << " TC: " << TC << " TG: " << TG << "\r\n";
+  outputFile << "" << "\r\n";
+  outputFile << "G: " << G << "\r\n";
+  outputFile << "GA: " << GA << " GT: " << GT << " GC: " << GC << " GG: " << GG << "\r\n";
+  outputFile << "" << "\r\n";
+  outputFile << "Statistics:\r\n";
+  outputFile << "Mean: " << averageLength << "\r\n";
+  outputFile << "Variance: " << variance << "\r\n";
+  outputFile << "Standard Deviation " << standardDeviation << "\r\n";
+  createString(variance, averageLength, "output.txt", A, T, C, G);
 
 }
