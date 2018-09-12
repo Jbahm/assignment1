@@ -3,6 +3,9 @@
 # include <cmath>
 #include <cstdlib>
 #include <random>
+#include <stdlib.h>
+#include <time.h>
+#include "assignment1.hpp"
 using namespace::std;
 
 bool isValidDNA(string dna){
@@ -13,47 +16,6 @@ bool isValidDNA(string dna){
   }
 }
   return true;
-}
-
-string populateSequence(string sequence, int aRemain, int tRemain, int cRemain, int gRemain){
-  int rand();
-  for(int i = 0; i < sequence.length(); i++ ){
-    int choice = rand()%4;
-    if(choice == 0 && aRemain > 0){
-      sequence[i] = 'A';
-    }else if(choice == 1 && tRemain > 0){
-      sequence[i] = 'T';
-    }else if(choice == 2 && gRemain > 0){
-      sequence[i] = 'G';
-    }else if(choice = 3 && cRemain > 0){
-      sequence[i] = 'C';
-    }
-  }
-  return sequence;
-}
-
-void createString(double variance, double mean, string output, double aProb, double tProb, double cProb, double gProb){
-  int rand();
-  double aCount = aProb * 1000;
-  double tCount = tProb * 1000;
-  double cCount = cProb * 1000;
-  double gCount = gProb * 1000;
-  ofstream outputFile;
-  outputFile.open("output.txt", ios::app);
-  for(int i = 0; i < 1000; i++){
-    string newSequence = "";
-    int a = rand();
-    int b = rand();
-    double c = sqrt(-2*log(a)*(cos(2*3.14*b)));
-    int d = sqrt(variance) * c * mean;
-    int value = rand()%d;
-    for(int j = 0; j < value; j++){
-      newSequence.append("*");
-    }
-    newSequence = populateSequence(newSequence, aCount, tCount, cCount, gCount);
-
-   outputFile << newSequence << "\r\n";
-  }
 }
 
 int countOccurances(string dna, string nucleo){
@@ -75,6 +37,57 @@ int countOccurances(string dna, string nucleo){
   }
   return occurances;
 }
+
+string populateSequence(string sequence, int aRemain, int tRemain, int cRemain, int gRemain){
+  for(int i = 0; i < sequence.length(); i++ ){
+    int choice = rand()%4;
+    if(choice == 0 && aRemain > 0){
+      sequence[i] = 'A';
+    }else if(choice == 1 && tRemain > 0){
+      sequence[i] = 'T';
+    }else if(choice == 2 && gRemain > 0){
+      sequence[i] = 'G';
+    }else if(choice = 3 && cRemain > 0){
+      sequence[i] = 'C';
+    }
+  }
+  return sequence;
+}
+
+void createString(double variance, double mean, string output, double aProb, double tProb, double cProb, double gProb, double sum){
+  double aCount = aProb * sum;
+  double tCount = tProb * sum;
+  double cCount = cProb * sum;
+  double gCount = gProb * sum;
+  double a;
+  double b;
+  ofstream outputFile;
+  outputFile.open("output.txt", ios::app);
+  string newSequence = "";
+  srand(time(NULL));
+  for(int i = 0; i < 1000; i++){
+    a = rand() - RAND_MAX;
+    b = rand() - RAND_MAX;
+    double c = sqrt(2*exp(1/a)*(cos(2*3.14*b)));
+    double d = sqrt(variance) * c * mean;
+    while(isnan(d) != 0){
+      a = rand() - RAND_MAX;
+      b = rand() - RAND_MAX;
+      c = sqrt(2*exp(1/a)*(cos(2*3.14*b)));
+      d = sqrt(variance) * c * mean;
+    }
+    d = round(d);
+
+    for(int j = 0; j < d; j++){
+      newSequence.append("*");
+    }
+    newSequence = populateSequence(newSequence, aCount, tCount, cCount, gCount);
+   outputFile << newSequence << "\r\n";
+   newSequence = "";
+  }
+}
+
+
 
 double calculateVariance(string filename, double mean, double lines){
   ifstream dna;
@@ -194,6 +207,6 @@ int main(int argc, char** argv){
   outputFile << "Mean: " << averageLength << "\r\n";
   outputFile << "Variance: " << variance << "\r\n";
   outputFile << "Standard Deviation " << standardDeviation << "\r\n";
-  createString(variance, averageLength, "output.txt", A, T, C, G);
+  createString(variance, averageLength, "output.txt", A, T, C, G, dnaSum);
 
 }
