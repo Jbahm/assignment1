@@ -20,6 +20,9 @@ public:
 
 
   string currentLine;
+  string answer;
+  bool repeat;
+  string file;
   double A, AA, AT, AC, AG;
   double T, TT, TA, TC, TG;
   double C, CC, CA, CT, CG;

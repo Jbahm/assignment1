@@ -8,7 +8,7 @@
 #include "assignment1.hpp"
 using namespace::std;
 
-bool isValidDNA(string dna){
+bool isValidDNA(string dna){//Checks if the string being analyzed is valid
 
   for(int i = 0; i < dna.length(); i++){
     if(toupper(dna[i]) != 'A' && toupper(dna[i]) != 'T' && toupper(dna[i]) != 'C' && toupper(dna[i]) != 'G' ){
@@ -18,7 +18,7 @@ bool isValidDNA(string dna){
   return true;
 }
 
-int countOccurances(string dna, string nucleo){
+int countOccurances(string dna, string nucleo){//Counts the number of times a nucleotide or a bigram appears
   int occurances = 0;
   //for a single nucleotide
   if(nucleo.length() == 1){
@@ -39,7 +39,7 @@ int countOccurances(string dna, string nucleo){
 }
 
 string populateSequence(string sequence, int aRemain, int tRemain, int cRemain, int gRemain){
-  for(int i = 0; i < sequence.length(); i++ ){
+  for(int i = 0; i < sequence.length(); i++ ){//Fills the string with nucleotides after creation
     int choice = rand()%4;
     if(choice == 0 && aRemain > 0){
       sequence[i] = 'A';
@@ -55,6 +55,7 @@ string populateSequence(string sequence, int aRemain, int tRemain, int cRemain, 
 }
 
 void createString(double variance, double mean, string output, double aProb, double tProb, double cProb, double gProb, double sum){
+  //Calculates the length of the string and then outputs it to the file
   double aCount = aProb * sum;
   double tCount = tProb * sum;
   double cCount = cProb * sum;
@@ -90,6 +91,7 @@ void createString(double variance, double mean, string output, double aProb, dou
 
 
 double calculateVariance(string filename, double mean, double lines){
+  //A method to calculate the variance in a file of DNA strings
   ifstream dna;
   dna.open(filename);
   string currentLine;
@@ -105,17 +107,24 @@ double calculateVariance(string filename, double mean, double lines){
 }
 
 double nucleotideProbability(double dnaSum, double nucleotideCount){
+  //a function to determine the probability of any nucleotide throughout the collection
   return nucleotideCount/dnaSum;
 }
 
 double bigramProbability(double dnaSum, double bigramCount){
+  //a function to determine the probability of any bigram throughout the collection
   return bigramCount/(dnaSum/2);
 }
 
 int main(int argc, char** argv){
+  bool repeat = true;
+  string answer;
+  while(repeat == true){
   ifstream dna;
-  dna.open("test.txt");
-  //Change with getting file from commandline
+  string file;
+  cout << "Enter the name of the file!" << endl;
+  cin >> file;
+  dna.open(file);
 
   string currentLine;
   double A, AA, AT, AC, AG;
@@ -131,6 +140,7 @@ int main(int argc, char** argv){
   for(int i = 0; i < 5; i++){
     dna >> currentLine;
     if(isValidDNA(currentLine) == true){
+      //Below are the calculations needed to determine the probability of the nucleotides
       A += countOccurances(currentLine, "A");
       AA += countOccurances(currentLine, "AA");
       AT += countOccurances(currentLine, "AT");
@@ -160,7 +170,7 @@ int main(int argc, char** argv){
     }
   }
   dna.close();
-
+  //actually calculates the probability of each
   A = nucleotideProbability(dnaSum, A);
   AA = bigramProbability(dnaSum, AA);
   AT = bigramProbability(dnaSum, AT);
@@ -185,10 +195,11 @@ int main(int argc, char** argv){
   GC = bigramProbability(dnaSum, GC);
   GG = bigramProbability(dnaSum, GG);
 
+  //Begining of outputting all statistics and new strings
   ofstream outputFile;
   outputFile.open("output.txt");
   averageLength = dnaSum/stringsCounted;
-  variance = calculateVariance("test.txt", averageLength, stringsCounted);
+  variance = calculateVariance(file, averageLength, stringsCounted);
   standardDeviation = pow(variance, 0.5);
   outputFile << "Letter Probability:\r\n";
   outputFile << "A: " << A << "\r\n";
@@ -209,4 +220,11 @@ int main(int argc, char** argv){
   outputFile << "Standard Deviation " << standardDeviation << "\r\n";
   createString(variance, averageLength, "output.txt", A, T, C, G, dnaSum);
 
+  //asks the user if they want to repeat the process with a new set of DNA
+  cout << "Do you want to analyze a new set? Y/N?" << endl;
+  cin >> answer;
+  if(answer == "N" or answer == "n"){
+    repeat = false;
+  }
+}
 }
